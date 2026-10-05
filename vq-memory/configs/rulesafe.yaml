@@ -1,0 +1,15 @@
+simulation:
+  engine: sapien
+  sim_frequency_hz: 100
+  log_frequency_hz: 10
+  image_size: [224, 224]
+  camera_views: [first_person, third_person]
+robot:
+  embodiment: Unitree H1-2 with Inspire hands
+  action_dim: 13
+benchmark:
+  initial_rules: [rule001, rule020]
+  full_rule_count: 20
+  safe_object_count: 10
+  single_task_demos_per_rule: 100
+  multitask_total_trajectories: 1000

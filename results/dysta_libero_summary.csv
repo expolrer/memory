@@ -1,0 +1,6 @@
+paper,suite,training_steps,successes,trials,success_rate_pct,recorded_through
+DySta,Spatial,15000,484,500,96.8,2026-09-02
+DySta,Object,15000,480,500,96.0,2026-09-02
+DySta,Goal,15000,477,500,95.4,2026-09-02
+DySta,Long_r2,15000,339,500,67.8,2026-09-02
+DySta,All_LIBERO,,1780,2000,89.0,2026-09-02

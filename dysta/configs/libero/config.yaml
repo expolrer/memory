@@ -1,0 +1,5 @@
+assets: /ssd/DySta/third_party/external_sources/LIBERO/libero/libero/assets
+bddl_files: /ssd/DySta/third_party/external_sources/LIBERO/libero/libero/bddl_files
+benchmark_root: /ssd/DySta/third_party/external_sources/LIBERO/libero/libero
+datasets: /ssd/DySta/datasets/libero
+init_states: /ssd/DySta/third_party/external_sources/LIBERO/libero/libero/init_files

@@ -1,0 +1,450 @@
+paper:
+  arxiv_id: "2602.03983v3"
+  method_names: ["DySta", "SD-VLA"]
+
+efficiency_layout:
+  total_visual_tokens: 256
+  static_tokens: [133, 107]
+  dynamic_tokens: 16
+  loss_weights:
+    alpha_levels: [0.2, 0.1]
+    beta_gate: 0.1
+
+libero_memory_layout:
+  total_visual_tokens: 256
+  static_tokens: [230]
+  dynamic_tokens: 26
+  observations: 20
+  sampling_interval_frames: 20
+  sampling_rate_hz: 1
+  expected_visual_context_tokens: 750
+
+recache_gate:
+  embedding_dim: 4096
+  input_pair_dim: 8192
+  position_out_dim: 128
+  token_out_dim: 64
+  final_head_input: 8192
+  appendix_ambiguity: "The text also says the second FFN maps 256 to 128; see README_CN.md."
+  task_thresholds:
+    pick_can: [0.8, 0.4]
+    move_near: [0.4, 0.3]
+    drawer: [0.7, 0.4]
+
+rlds_assets:
+  repository: "openvla/modified_libero_rlds"
+  revision: "6ce6aaaaabdbe590b1eef5cd29c0d33f14a08551"
+  server_root: "/ssd/DySta/datasets/modified_libero_rlds"
+  installed_datasets:
+    - "libero_spatial_no_noops"
+    - "libero_object_no_noops"
+    - "libero_goal_no_noops"
+    - "libero_10_no_noops"
+  recovered_dataset_validation:
+    datasets: ["libero_object_no_noops", "libero_goal_no_noops", "libero_10_no_noops"]
+    status: "verified"
+    files: 86
+    bytes: 8316052983
+    local_manifest_sha256: "7d83df135dfe1f42ad10346dcebadd235f7325ce9b337cbc35935b9a84183f06"
+    transfer_tar_sha256: "c2ea4df4dd0468ae645f29e64aa4aef1021809766eea8965c756f153f35a6b4a"
+    server_validation_manifest_sha256: "ebfee0feacc9c3e871d18006293cf1c8b917f5a2df1c421a6958bb5d218f9309"
+    transfer_workers: 128
+    transfer_chunks: 1024
+    transfer_retries: 5
+
+openvla_oft_training:
+  optimizer: "AdamW"
+  learning_rate: 0.0005
+  lora_rank: 32
+  max_steps: 15000
+  global_batch_size: 64
+  gpu_count: 2
+  recommended_micro_batch_per_gpu: 4
+  gradient_accumulation_steps: 8
+  precision: "bf16"
+  reconstruction_runtime:
+    physical_gpu_ids: [6, 7]
+    base_model_path: "/ssd/DySta/models/openvla-7b"
+    rlds_root: "/ssd/DySta/datasets/modified_libero_rlds"
+    dataset_name: "libero_spatial_no_noops"
+    history_frames: 2
+    history_interval: 1
+    shuffle_buffer_size: 4096
+    image_augmentation: true
+    seed: 42
+    checkpoint_frequency: 1000
+    merge_lora_during_training: false
+    wandb_mode: "offline"
+    systemd_unit: "dysta-libero-spatial-gpu67.service"
+  completed_run:
+    status: "completed"
+    run_path: "/ssd/DySta/runs/openvla-7b+libero_spatial_no_noops+gb64+lr-0.0005+seed-42+lora-r32+dropout-0.0--image_aug--dysta-paper-gpu67"
+    final_checkpoint_path: "/ssd/DySta/runs/openvla-7b+libero_spatial_no_noops+gb64+lr-0.0005+seed-42+lora-r32+dropout-0.0--image_aug--dysta-paper-gpu67--15000_chkpt"
+    optimizer_steps: 15000
+    checkpoint_count: 15
+    elapsed_seconds_by_rank: [41115.108997, 41115.266776]
+    peak_allocated_gib_by_rank: [31.67556, 31.68194]
+    peak_reserved_gib_by_rank: [33.17578, 33.24414]
+    h100_gpu_hours: 22.84
+    final_metrics:
+      current_action_l1: 0.04240
+      next_action_l1: 0.04602
+      dysta_auxiliary: 0.03149
+      gate: 0.31438
+      info_nce: 0.00006
+      total: 0.07709
+      learning_rate: 0.0005
+    artifact_sha256:
+      lora_adapter: "d735a08521b65f89e549b53e8c89afccd73f320af86e5391d6cb0e3b0c96ae1f"
+      action_head: "76fc27241672cf97345cd84ffd392a6ea31053a355d560af9f8f8746fc16f970"
+      dysta_adapter: "ff79a22817d88e22b531112d6a1f58182bf969d4513eb070049554746d8db688"
+
+libero_spatial_evaluation:
+  checkpoint_step: 15000
+  history_frames: 2
+  history_interval: 1
+  third_person_only: true
+  use_wrist_camera: false
+  use_proprioception: false
+  center_crop: true
+  action_chunk_size: 8
+  strict_episode_errors: true
+  smoke:
+    tasks: 10
+    trials_per_task: 1
+    successes: 10
+    episodes: 10
+  formal_500:
+    status: "completed"
+    trials_per_task: 50
+    total_tasks: 10
+    total_episodes: 500
+    gpu6_tasks: [0, 1, 2, 3, 4]
+    gpu7_tasks: [5, 6, 7, 8, 9]
+    gpu6_service: "dysta-libero-spatial-500-gpu6-20260830-r2.service"
+    gpu7_service: "dysta-libero-spatial-500-gpu7-20260830-r2.service"
+    successes_by_task: [50, 49, 49, 50, 45, 49, 49, 46, 49, 48]
+    total_successes: 484
+    success_rate: 0.968
+    wilson_95_ci: [0.9486551309545582, 0.9802084863734289]
+    elapsed_seconds_gpu6: 1902
+    elapsed_seconds_gpu7: 2037
+    wall_clock_seconds: 2039
+    h100_gpu_hours: 1.094
+    summary_json: "/ssd/DySta/eval-logs/libero-spatial/spatial-500-summary.json"
+    tasks_csv: "/ssd/DySta/eval-logs/libero-spatial/spatial-500-tasks.csv"
+    summary_json_sha256: "c9f91251ef92908a8c0d82b227fe41396c507d9004a20601adbbe39aaee217b6"
+    tasks_csv_sha256: "b9a71c7ef24065df72ef8a77c95c095b759cde6fb14f3e1176fde9fe03df60d6"
+
+libero_object_training:
+  dataset_name: "libero_object_no_noops"
+  trajectory_count: 454
+  one_step_profile:
+    status: "completed"
+    optimizer_steps: 1
+    elapsed_seconds_by_rank: [4.962, 4.942]
+    peak_allocated_gib_by_rank: [30.459, 30.467]
+    peak_reserved_gib_by_rank: [31.510, 31.588]
+    metrics:
+      current_action_l1: 0.56958
+      next_action_l1: 0.58887
+      dysta_auxiliary: 0.09955
+      gate: 0.69750
+      info_nce: 0.02980
+      total: 0.68695
+      learning_rate: 0.0005
+  formal_15000:
+    status: "completed"
+    service: "dysta-libero-object-gpu67-15000-20260830-r1.service"
+    started_cst: "2026-08-30 13:26:31"
+    physical_gpu_ids: [6, 7]
+    log_path: "/ssd/DySta/runs/dysta-libero-object-gpu67-15000-20260830-r1.log"
+    run_path: "/ssd/DySta/runs/openvla-7b+libero_object_no_noops+gb64+lr-0.0005+seed-42+lora-r32+dropout-0.0--image_aug--dysta-paper-gpu67"
+    final_checkpoint_path: "/ssd/DySta/runs/openvla-7b+libero_object_no_noops+gb64+lr-0.0005+seed-42+lora-r32+dropout-0.0--image_aug--dysta-paper-gpu67--15000_chkpt"
+    optimizer_steps: 15000
+    checkpoint_count: 15
+    elapsed_seconds_by_rank: [41881.45185141289, 41881.48437699]
+    peak_allocated_gib_by_rank: [31.458203315734863, 31.460603713989258]
+    peak_reserved_gib_by_rank: [32.14453125, 32.140625]
+    h100_gpu_hours: 23.27
+    final_metrics:
+      current_action_l1: 0.04037
+      next_action_l1: 0.03954
+      dysta_auxiliary: 0.03152
+      gate: 0.31451
+      info_nce: 0.00007
+      total: 0.07123
+      learning_rate: 0.0005
+    artifact_sha256:
+      lora_adapter: "21ec0cc3493ab6e5fc26ae2b682090878b0d11647a9a651fcf697085aa701582"
+      action_head: "5122509c51fd0b5b153308c638eb099562544b272c6e964c8c42300710c892be"
+      dysta_adapter: "3a3226992621bf8ecc868a8fffae75d9a2e91652a3b63366ac026ed14c5a7957"
+      dataset_statistics: "2bff9cb26fea5d50522fc327f71362dda38252dfc9003aae444259ff96371aa7"
+  evaluation:
+    smoke:
+      status: "completed"
+      tasks: 10
+      episodes: 10
+      successes: 9
+      all_process_exit_codes_zero: true
+      failed_policy_task_ids: [3]
+    formal_500:
+      status: "completed"
+      trials_per_task: 50
+      total_tasks: 10
+      total_episodes: 500
+      gpu6_tasks: [0, 1, 2, 3, 4]
+      gpu7_tasks: [5, 6, 7, 8, 9]
+      initial_gpu6_service: "dysta-libero-object-500-gpu6-20260831-r1.service"
+      initial_gpu7_service: "dysta-libero-object-500-gpu7-20260831-r1.service"
+      resume_task4_service: "dysta-libero-object-resume-task4-gpu6-20260831-r2.service"
+      resume_task9_service: "dysta-libero-object-resume-task9-gpu7-20260831-r2.service"
+      started_cst_by_gpu: ["2026-08-31 10:15:00", "2026-08-31 10:15:12"]
+      resumed_cst_by_gpu: ["2026-08-31 16:22:27", "2026-08-31 16:22:44"]
+      successes_by_task: [46, 50, 50, 43, 49, 46, 49, 49, 50, 48]
+      total_successes: 480
+      success_rate: 0.96
+      wilson_95_ci: [0.9390264041651492, 0.9739592026102227]
+      elapsed_seconds_gpu6_completed_tasks: 1999
+      elapsed_seconds_gpu7_completed_tasks: 1989
+      ideal_parallel_wall_seconds: 1999
+      h100_gpu_hours: 1.108
+      summary_json: "/ssd/DySta/eval-logs/libero-object/object-500-summary.json"
+      tasks_csv: "/ssd/DySta/eval-logs/libero-object/object-500-tasks.csv"
+      summary_json_sha256: "143ea999bda47d1deb0c027b23de20fdf8a498b258555713ad5939193488ae5f"
+      tasks_csv_sha256: "12c8eba1135b828b25b618adffcd632bee19b4bb58d9ae031f37ba1e34c7c607"
+      strict_summary_exit_code: 0
+      reportable_suite_metric: true
+      interruption_audit:
+        stopped_cst: "2026-08-31 10:44:57"
+        completed_task_ids_before_stop: [0, 1, 2, 3, 5, 6, 7, 8]
+        completed_episodes_before_stop: 400
+        completed_successes_before_stop: 383
+        partial_task4_episodes: 18
+        partial_task9_episodes: 11
+        resume_strategy: "Reran task 4 and task 9 from episode 1 for 50 episodes each; partial logs were excluded."
+
+libero_goal_training:
+  dataset_name: "libero_goal_no_noops"
+  trajectory_count: 428
+  launcher_patch:
+    physical_gpu_parameter: "PHYSICAL_GPUS"
+    selected_physical_gpu_ids: [0, 7]
+    gpu_topology: "NV18"
+    package_sha256: "deb7f32204a9ba1537586c4478dc9d3b0022b5e01560ecadfca8f4d8d248630a"
+    formal_script_sha256: "a1a45da497d1ef89b1302592db9ceaf350874594f0793568cbff0c8031b22abf"
+    profile_script_sha256: "ea991b39a81820994e0c5aec0ddd13889a7f5164d20f83a38897b277ff228a82"
+  one_step_profile:
+    status: "completed"
+    optimizer_steps: 1
+    physical_gpu_ids: [0, 7]
+    elapsed_seconds_by_rank: [5.938471347093582, 6.1088516199961305]
+    peak_allocated_gib_by_rank: [30.340938568115234, 30.338382720947266]
+    peak_reserved_gib_by_rank: [31.51953125, 31.4921875]
+    dataset_statistics_sha256: "22e0549a346b2ec8a109904d017a57c50f12769b91653939aefb72b119725d47"
+    metrics:
+      current_action_l1: 0.58936
+      next_action_l1: 0.61816
+      dysta_auxiliary: 0.10490
+      gate: 0.69728
+      info_nce: 0.03517
+      total: 0.71965
+      learning_rate: 0.0005
+  formal_15000:
+    status: "completed"
+    service: "dysta-libero-goal-gpu07-15000-20260831-r1.service"
+    started_cst: "2026-08-31 20:29:33"
+    physical_gpu_ids: [0, 7]
+    log_path: "/ssd/DySta/runs/dysta-libero-goal-gpu07-15000-20260831-r1.log"
+    run_path: "/ssd/DySta/runs/openvla-7b+libero_goal_no_noops+gb64+lr-0.0005+seed-42+lora-r32+dropout-0.0--image_aug--dysta-paper-gpu07"
+    final_checkpoint_path: "/ssd/DySta/runs/openvla-7b+libero_goal_no_noops+gb64+lr-0.0005+seed-42+lora-r32+dropout-0.0--image_aug--dysta-paper-gpu07--15000_chkpt"
+    optimizer_steps: 15000
+    checkpoint_count: 15
+    elapsed_seconds_by_rank: [41226.45047464594, 41226.54301001015]
+    peak_allocated_gib_by_rank: [31.343507766723633, 31.34510326385498]
+    peak_reserved_gib_by_rank: [32.2265625, 32.21875]
+    h100_gpu_hours: 22.90
+    final_metrics:
+      current_action_l1: 0.03197
+      next_action_l1: 0.02968
+      dysta_auxiliary: 0.03155
+      gate: 0.31436
+      info_nce: 0.00012
+      total: 0.06152
+      learning_rate: 0.0005
+    artifact_sha256:
+      lora_adapter: "811414a5e53c08fd6c027d254d009fa14ebd5fed03986098b35e9f0476cdbabf"
+      action_head: "e212720fa66708295e6fe322377fbf98944969ce0326560a42205eef28a4e5e0"
+      dysta_adapter: "6b4c1f13dcaebd220421aaeae926bd10175b92f40052369d47c4e91e85f97d03"
+      dataset_statistics: "22e0549a346b2ec8a109904d017a57c50f12769b91653939aefb72b119725d47"
+    systemd_result: "success"
+    systemd_exit_status: 0
+    systemd_restarts: 0
+  evaluation:
+    smoke:
+      status: "completed"
+      physical_gpu_ids: [5, 6]
+      tasks: 10
+      episodes: 10
+      successes: 9
+      all_process_exit_codes_zero: true
+      failed_policy_task_ids: [2]
+    formal_500:
+      status: "completed"
+      trials_per_task: 50
+      total_tasks: 10
+      total_episodes: 500
+      gpu5_tasks: [0, 1, 2, 3, 4]
+      gpu6_tasks: [5, 6, 7, 8, 9]
+      gpu5_service: "dysta-libero-goal-500-gpu5-20260901-r1.service"
+      gpu6_service: "dysta-libero-goal-500-gpu6-20260901-r1.service"
+      successes_by_task: [49, 48, 47, 42, 49, 48, 50, 50, 49, 45]
+      total_successes: 477
+      success_rate: 0.954
+      wilson_95_ci: [0.9319222072317267, 0.9691548916291838]
+      elapsed_seconds_gpu5: 2153
+      elapsed_seconds_gpu6: 1968
+      wall_clock_seconds: 2153
+      h100_gpu_hours: 1.145
+      summary_json: "/ssd/DySta/eval-logs/libero-goal/goal-500-summary.json"
+      tasks_csv: "/ssd/DySta/eval-logs/libero-goal/goal-500-tasks.csv"
+      summary_json_sha256: "6e4a083ba25618a013414cc0b8947da742efa223cfbbb6ee98bdf089a0820fc7"
+      tasks_csv_sha256: "9a99eb185350491a39c356d99724d2b5bd8e4751a6161170850f7ef1cd38dbbd"
+      strict_summary_exit_code: 0
+
+libero_long_training:
+  dataset_name: "libero_10_no_noops"
+  trajectory_count: 379
+  one_step_profile:
+    status: "completed"
+    optimizer_steps: 1
+    physical_gpu_ids: [5, 6]
+    elapsed_seconds_by_rank: [10.26211130199954, 10.26877631386742]
+    peak_allocated_gib_by_rank: [30.74239730834961, 30.74838399887085]
+    peak_reserved_gib_by_rank: [32.6796875, 32.6875]
+    dataset_statistics_sha256: "dbe516987e8124416af39c32d3f39ce2137ccb4e282adc590bb4bcede09fb5e1"
+    metrics:
+      current_action_l1: 0.61719
+      next_action_l1: 0.54590
+      dysta_auxiliary: 0.07603
+      gate: 0.69732
+      info_nce: 0.00630
+      total: 0.63121
+      learning_rate: 0.0005
+  formal_15000:
+    status: "completed"
+    active_attempt: "r2"
+    service: "dysta-libero-long-gpu67-15000-20260901-r2.service"
+    started_cst: "2026-09-01 18:55:56"
+    physical_gpu_ids: [6, 7]
+    physical_gpu_topology: "NV18"
+    logical_gpu_ids: [0, 1]
+    log_path: "/ssd/DySta/runs/dysta-libero-long-gpu67-15000-20260901-r2.log"
+    run_path: "/ssd/DySta/runs/openvla-7b+libero_10_no_noops+gb64+lr-0.0005+seed-42+lora-r32+dropout-0.0--image_aug--dysta-paper-gpu67-r2"
+    final_checkpoint_path: "/ssd/DySta/runs/openvla-7b+libero_10_no_noops+gb64+lr-0.0005+seed-42+lora-r32+dropout-0.0--image_aug--dysta-paper-gpu67-r2--15000_chkpt"
+    target_optimizer_steps: 15000
+    completed_optimizer_steps: 15000
+    save_frequency_steps: 1000
+    completed_cst: "2026-09-02 06:11:44"
+    checkpoint_count: 15
+    elapsed_seconds_by_rank: [40517.602, 40517.496]
+    peak_allocated_gib_by_rank: [31.717, 31.718]
+    peak_reserved_gib_by_rank: [32.625, 32.619]
+    approximate_wall_clock_seconds: 40518
+    approximate_gpu_hours: 22.51
+    systemd_restarts: 0
+    completion_evidence: "Training log reached 15000/15000, saved the step-15000 checkpoint, printed Max step 15000 reached, and emitted both rank runtime records."
+    final_metrics:
+      current_action_l1: 0.05164
+      next_action_l1: 0.05275
+      dysta_auxiliary: 0.03153
+      gate: 0.31434
+      info_nce: 0.00009
+      total: 0.08417
+      learning_rate: 0.0005
+    final_artifact_sha256:
+      lora_adapter_model: "978d21a7f57681356388a057d057a655794c798e8e84d582b952f99fb2352bdb"
+      action_head: "9e95d53dee5ea3faa74c030ad28dea97d8bac8c35ef2b63faa7b4dba67bf63c2"
+      dysta_adapter: "0b1e033a736fc625f895280eaee821e5b250d0ea47f17a93b50f0b67bb847d89"
+      dataset_statistics: "dbe516987e8124416af39c32d3f39ce2137ccb4e282adc590bb4bcede09fb5e1"
+    restart_policy: "Strict restart from the OpenVLA-7B base weights; do not claim checkpoint-equivalent resume."
+    prior_attempt_r1:
+      service: "dysta-libero-long-gpu56-15000-20260901-r1.service"
+      started_cst: "2026-09-01 10:35:59"
+      failed_cst: "2026-09-01 13:54:50"
+      physical_gpu_ids: [5, 6]
+      log_path: "/ssd/DySta/runs/dysta-libero-long-gpu56-15000-20260901-r1.log"
+      run_path: "/ssd/DySta/runs/openvla-7b+libero_10_no_noops+gb64+lr-0.0005+seed-42+lora-r32+dropout-0.0--image_aug--dysta-paper-gpu56"
+      last_observed_step: 4175
+      latest_complete_checkpoint_step: 4000
+      complete_checkpoint_count: 4
+      systemd_result: "exit-code"
+      systemd_exec_main_status: 1
+      failed_rank: 1
+      failed_rank_exit_code: -9
+      failed_rank_signal: "SIGKILL"
+      root_cause_classification: "External SIGKILL; sender is not identifiable from available logs."
+      negative_evidence: "No preceding OOM, NaN, NCCL error, kernel OOM kill, GPU ECC/remap issue, or systemd resource-limit hit found."
+      strict_resume_equivalent: false
+      missing_resume_state:
+        - "AdamW first and second moments"
+        - "learning-rate scheduler and global step"
+        - "per-rank RNG state"
+        - "gradient-accumulation state"
+        - "RLDS shuffle buffer and iterator position"
+  evaluation:
+    status: "completed"
+    evaluated_checkpoint: "/ssd/DySta/runs/openvla-7b+libero_10_no_noops+gb64+lr-0.0005+seed-42+lora-r32+dropout-0.0--image_aug--dysta-paper-gpu67-r2--15000_chkpt"
+    smoke:
+      status: "completed"
+      physical_gpu_ids: [3, 4]
+      trials_per_task: 1
+      task_ids_by_gpu:
+        gpu3: [0, 1, 2, 3, 4]
+        gpu4: [5, 6, 7, 8, 9]
+      service_gpu3: "dysta-libero-long-r2-smoke-gpu3-20260902-r1.service"
+      service_gpu4: "dysta-libero-long-r2-smoke-gpu4-20260902-r1.service"
+      successes: 7
+      episodes: 10
+      failed_task_ids: [6, 8, 9]
+      service_results: ["success/exit=0", "success/exit=0"]
+    formal_500:
+      status: "completed"
+      physical_gpu_ids: [3, 4]
+      task_ids_by_gpu:
+        gpu3: [0, 1, 2, 3, 4]
+        gpu4: [5, 6, 7, 8, 9]
+      service_gpu3: "dysta-libero-long-r2-500-gpu3-20260902-r1.service"
+      service_gpu4: "dysta-libero-long-r2-500-gpu4-20260902-r1.service"
+      service_results: ["success/exit=0", "success/exit=0"]
+      started_cst_by_gpu: ["2026-09-02 12:03:11", "2026-09-02 12:03:26"]
+      completed_cst_by_gpu: ["2026-09-02 13:00:21", "2026-09-02 13:06:51"]
+      elapsed_seconds_by_gpu: [3430, 3805]
+      wall_clock_seconds: 3820
+      gpu_hours: 2.0097
+      successes_by_task: [23, 46, 49, 48, 39, 46, 8, 38, 1, 41]
+      episodes_by_task: [50, 50, 50, 50, 50, 50, 50, 50, 50, 50]
+      total_successes: 339
+      total_episodes: 500
+      success_rate: 0.678
+      wilson_95_ci: [0.6358218272211889, 0.7174639075744986]
+      summary_json: "/ssd/DySta/eval-logs/libero-long-r2/long-r2-500-summary.json"
+      tasks_csv: "/ssd/DySta/eval-logs/libero-long-r2/long-r2-500-tasks.csv"
+      summary_json_sha256: "af8818efc69b1188a251a7c960007d030a6877fde8e5e31638946b899c17d603"
+      tasks_csv_sha256: "26eb17bc9776ffd64970782b5992200e40f1df7dcb8885cec301426c8c37d0e7"
+      strict_summary_exit_code: 0
+      log_audit:
+        evaluation_log_tracebacks: 0
+        oom_errors: 0
+        nccl_errors: 0
+        episode_exceptions: 0
+        service_log_tracebacks: 20
+        service_traceback_classification: "All 20 are post-result Robosuite EGL_NOT_INITIALIZED destructor warnings; two per task."
+
+cogact_training:
+  optimizer: "AdamW"
+  learning_rate: 0.00002
+  lora_rank: 32
+  max_steps: 6000
+  global_batch_size: 32
+  gpu_count: 2

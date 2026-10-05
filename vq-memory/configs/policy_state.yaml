@@ -1,0 +1,11 @@
+seed: 42
+joint_dim: 13
+action_dim: 13
+hidden_dim: 256
+batch_size: 256
+learning_rate: 0.0005
+max_steps: 200
+raw_memory_steps: 40
+vq_memory_length: 40
+vq_vocab_size: 4
+val_fraction: 0.2

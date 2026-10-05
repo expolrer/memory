@@ -1,0 +1,32 @@
+{
+  "paper": "VQ-Memory",
+  "recorded_through": "2026-08-29",
+  "status": "engineering_short_run_only",
+  "rules": 20,
+  "demonstrations_per_rule": 50,
+  "demonstrations_total": 1000,
+  "steps_in_dataset": 220000,
+  "point_cloud_shape": [
+    1024,
+    6
+  ],
+  "state_and_action_dimensions": 13,
+  "vq": {
+    "window": 50,
+    "stride": 20,
+    "codebook_size": 256,
+    "clusters": 4,
+    "memory_length": 40,
+    "smoke_training_steps": 50
+  },
+  "dp3": {
+    "smoke_training_steps": 50,
+    "smoke_eval_mean_loss_8_batches": 0.01938
+  },
+  "paper_comparable_sr_ps": null,
+  "limitations": [
+    "Original RuleSafe assets and demonstrations unavailable",
+    "Paper-scale DP3 and VLA training incomplete",
+    "No paper-comparable closed-loop SR/PS"
+  ]
+}

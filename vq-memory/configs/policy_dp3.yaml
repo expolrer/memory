@@ -1,0 +1,11 @@
+policy: dp3
+point_count: 1024
+action_dim: 13
+action_chunk: 50
+batch_size: 256
+training_steps: 200000
+memory:
+  enabled: true
+  vocab_size: 4
+  length: 40
+  injection: latent_embedding

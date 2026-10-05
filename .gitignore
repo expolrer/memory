@@ -1,0 +1,17 @@
+# Keep generated data and model artifacts outside Git.
+**/__pycache__/
+*.pyc
+.venv/
+**/.venv/
+**/artifacts/
+**/data/
+**/runs/
+**/runs-profile/
+**/eval-logs/
+*.pt
+*.pth
+*.safetensors
+*.zarr/
+*.tar
+*.tar.gz
+*.zip

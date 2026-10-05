@@ -1,0 +1,38 @@
+# RuleSafe -> upstream DP3 bridge configuration.
+# This file documents the zarr schema expected by
+# diffusion_policy_3d.dataset.metaworld_dataset.MetaworldDataset.
+
+dataset:
+  source_npz: data/rulesafe_multitask/rulesafe_20rules_50x.npz
+  smoke_zarr: data/dp3_rulesafe_smoke/rulesafe_20rules_40eps_256pts.zarr
+  full_zarr_1024pt: data/dp3_rulesafe/rulesafe_20rules_1000eps_1024pts.zarr
+  zarr_keys:
+    state: /data/state          # [total_steps, 13]
+    action: /data/action        # [total_steps, 13]
+    point_cloud: /data/point_cloud  # [total_steps, point_count, 6]
+    episode_ends: /meta/episode_ends
+
+paper_target:
+  point_count: 1024
+  action_dim: 13
+  action_chunk: 50
+  dp3_batch_size: 256
+  dp3_training_steps: 200000
+
+smoke_export:
+  point_count: 256
+  max_episodes: 40
+  covers_rules: rule001-rule020
+
+commands:
+  export_smoke: ./scripts/run_dp3_zarr_smoke.sh
+  export_full_1024pt: >-
+    python data_generation/export_dp3_zarr.py
+    --npz data/rulesafe_multitask/rulesafe_20rules_50x.npz
+    --out data/dp3_rulesafe/rulesafe_20rules_1000eps_1024pts.zarr
+    --point-count 1024
+    --overwrite
+  validate_full_1024pt: >-
+    python data_generation/validate_dp3_zarr.py
+    --zarr data/dp3_rulesafe/rulesafe_20rules_1000eps_1024pts.zarr
+    --dp3-root third_party/3D-Diffusion-Policy/3D-Diffusion-Policy

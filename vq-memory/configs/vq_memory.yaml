@@ -1,0 +1,13 @@
+seed: 42
+joint_dim: 13
+window_size: 50
+stride: 20
+codebook_size: 256
+cluster_size: 4
+memory_length: 40
+commitment_cost: 4.0
+hidden_dim: 256
+latent_dim: 64
+batch_size: 256
+learning_rate: 0.0003
+max_steps: 100000
